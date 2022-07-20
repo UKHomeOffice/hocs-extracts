@@ -6,7 +6,7 @@ export KUBE_TOKEN=${KUBE_TOKEN}
 export VERSION=${VERSION}
 
 # passed to keycloak-gatekeeper and nginx for various proxy timeouts
-# the default is 60 seconds but audit has long-running queries
+# the default is 60 seconds but extracts has long-running queries
 export PROXY_TIMEOUT=${PROXY_TIMEOUT:-300}
 
 export DOMAIN="cs"
@@ -21,10 +21,10 @@ then
 
     export REFRESH_CRON="30 5 * * *"
     export UPTIME_PERIOD="Mon-Sun 05:00-23:00 Europe/London"
-    
+
     export CLUSTER_NAME="acp-prod"
     export KUBE_SERVER=https://kube-api-prod.prod.acp.homeoffice.gov.uk
-else 
+else
     export MIN_REPLICAS="1"
     export MAX_REPLICAS="2"
 
@@ -46,12 +46,12 @@ else
     export KC_REALM=https://sso-dev.notprod.homeoffice.gov.uk/auth/realms/hocs-notprod
 fi
 
-export DOMAIN_NAME=${DNS_PREFIX}.homeoffice.gov.uk	
+export DOMAIN_NAME=${DNS_PREFIX}.homeoffice.gov.uk
 
 export KUBE_CERTIFICATE_AUTHORITY="https://raw.githubusercontent.com/UKHomeOffice/acp-ca/master/${CLUSTER_NAME}.crt"
 
 echo
-echo "Deploying audit ${VERSION} to ${ENVIRONMENT}"
+echo "Deploying extracts ${VERSION} to ${ENVIRONMENT}"
 echo "Keycloak realm: ${KC_REALM}"
 echo "Redirect URL: ${DOMAIN_NAME}"
 echo

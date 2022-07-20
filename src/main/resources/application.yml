@@ -1,7 +1,7 @@
 info:
   app:
-    fullname: Hocs Audit Service
-    name: ${name:hocs-audit-service}
+    fullname: Hocs Extracts Service
+    name: ${name:hocs-extracts-service}
     version: ${version:0.0.1}
 
 server:
@@ -18,10 +18,10 @@ spring:
     caffeine:
       spec: initialCapacity=500,expireAfterWrite=600s
   datasource:
-    url: jdbc:postgresql://${db.host:localhost}:${db.port:5432}/${db.name:postgres}?currentSchema=${db.schema.name:audit}&user=${db.username:root}&password=${db.password:dev}&stringtype=unspecified
+    url: jdbc:postgresql://${db.host:localhost}:${db.port:5432}/${db.name:postgres}?currentSchema=${db.schema.name:extracts}&user=${db.username:root}&password=${db.password:dev}&stringtype=unspecified
   flyway:
     locations: classpath:/db/migration/postgresql
-    schemas: ${db.schema.name:audit}
+    schemas: ${db.schema.name:extracts}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
@@ -42,8 +42,8 @@ aws:
   account:
     id: 123456789012
   queue:
-    audit:
-      name: audit-queue
+    extracts:
+      name: extracts-queue
   sqs:
     access:
       key: 12345

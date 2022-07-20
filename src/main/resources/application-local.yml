@@ -6,11 +6,11 @@ aws:
     config:
       port: 4566
       url: http://${localstack.host}:${aws.sqs.config.port}
-    audit:
-      url: ${aws.sqs.config.url}/000000000000/${aws.queue.audit.name}
-    audit-dlq:
-      name: audit-queue-dlq
-      url: ${aws.sqs.config.url}/000000000000/${aws.sqs.audit-dlq.name}
+    extracts:
+      url: ${aws.sqs.config.url}/000000000000/${aws.queue.extracts.name}
+    extracts-dlq:
+      name: extracts-queue-dlq
+      url: ${aws.sqs.config.url}/000000000000/${aws.sqs.extracts-dlq.name}
 
 
 postgresViewAllowList: allow1,allow2

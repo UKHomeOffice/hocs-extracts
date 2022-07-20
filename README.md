@@ -1,19 +1,15 @@
-# hocs-audit
+# hocs-extracts
 
-[![CodeQL](https://github.com/UKHomeOffice/hocs-audit/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/UKHomeOffice/hocs-audit/actions/workflows/codeql-analysis.yml)
+[![CodeQL](https://github.com/UKHomeOffice/hocs-extracts/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/UKHomeOffice/hocs-extracts/actions/workflows/codeql-analysis.yml)
 
-This is the Home Office Correspondence Service (HOCS) auditing service. This service is designed to 
-receive audit event messages from an SQS queue for persistent storage.
 
-The HOCS project is comprised of a set of micro-services:
-* [hocs-workflow](https://github.com/UKHomeOffice/hocs-workflow): models the business processes between the services
-* [hocs-frontend](https://github.com/UKHomeOffice/hocs-frontend): the UI service, implemented in Node and React.
-* [hocs-casework](https://github.com/UKHomeOffice/hocs-casework): handles the data for each correspondence case.
-* [hocs-info-service](https://github.com/UKHomeOffice/hocs-info-service): manages static data and data retrieved through external APIs
-* [hocs-docs](https://github.com/UKHomeOffice/hocs-docs): manages processing and storage of documents
-* [hocs-audit](https://github.com/UKHomeOffice/hocs-audit): receives and stores audit events.
+This service enables CSV extracts for DECS MI users. 
 
-The source for this service can be found on [GitHub](https://github.com/UKHomeOffice/hocs-audit.git).
+The service has been created by decomposing hocs-audit into two service. 
+
+Audit contains only functionality related to auditing data, including timelines.
+
+This service now contains all functionality related to collecting reporting data and making it available to MI teams through a CSV download.
 
 <!-- Something about ACP -->
 
@@ -21,14 +17,14 @@ The source for this service can be found on [GitHub](https://github.com/UKHomeOf
 
 ### Prerequisites
 
-* ```Java 11```
+* ```Java 17```
 * ```Docker```
 * ```Postgres```
 * ```SQS```
 * ```LocalStack```
 
 
-## Build and Run the Audit Service
+## Build and Run the Extracts Service
 
 ### Preparation
 In order to run the service locally, a postgres database, SQS queues, and LocalStack are required. 
@@ -46,7 +42,7 @@ docker-compose down
 
 ### Running in an IDE
 
-If you are using an IDE, such as IntelliJ, this audit service can be started by running the ```HocsAuditApplication``` main class. 
+If you are using an IDE, such as IntelliJ, this extracts service can be started by running the ```HocsExtractsApplication``` main class. 
 The service can then be accessed at ```http://localhost:8087```.
 
 ### Building and running without an IDE
@@ -61,7 +57,7 @@ in the root of the project.
 
 <!--- building container locally with gradle clean build and running --->
 
-Alternatively, the corresponding Docker image for this service is available at [quay.io](https://quay.io/repository/ukhomeofficedigital/hocs-audit).
+Alternatively, the corresponding Docker image for this service is available at [quay.io](https://quay.io/repository/ukhomeofficedigital/hocs-extracts).
 
 ### Flyway and database management
 
@@ -81,7 +77,7 @@ and there will be a new instance of postgres.
 
 <!--- describe tests here --->
 
-The suite of tests includes unit tests for the resource and services classes, and integration tests. In order to run the integration tests, an instance of postgres must be running.
+The suite of tests includes unit tests for the resource and services classes, and integration tests. In order to run the integration tests, an instance of postgres and localstack must be running.
 
 
 ## Deployment
