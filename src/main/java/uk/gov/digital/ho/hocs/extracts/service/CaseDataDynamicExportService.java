@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.extracts.client.casework.CaseworkClient;
 import uk.gov.digital.ho.hocs.extracts.client.info.InfoClient;
 import uk.gov.digital.ho.hocs.extracts.client.info.dto.CaseTypeDto;
-import uk.gov.digital.ho.hocs.extracts.core.exception.AuditExportException;
+import uk.gov.digital.ho.hocs.extracts.core.exception.ExtractsExportException;
 import uk.gov.digital.ho.hocs.extracts.core.utils.ZonedDateTimeConverter;
 import uk.gov.digital.ho.hocs.extracts.repository.AuditRepository;
 import uk.gov.digital.ho.hocs.extracts.repository.entity.AuditEvent;
@@ -74,7 +74,7 @@ public abstract class CaseDataDynamicExportService extends DynamicExportService 
                     printer.printRecord((Object[]) parsedData);
                     printer.flush();
                 } catch (IOException e) {
-                    throw new AuditExportException("Unable to parse record for audit {} for reason {}", CSV_RECORD_EXPORT_FAILURE, audit.getUuid(), e.getMessage());
+                    throw new ExtractsExportException("Unable to parse record for audit {} for reason {}", CSV_RECORD_EXPORT_FAILURE, audit.getUuid(), e.getMessage());
                 }
             });
         } catch (IOException e) {

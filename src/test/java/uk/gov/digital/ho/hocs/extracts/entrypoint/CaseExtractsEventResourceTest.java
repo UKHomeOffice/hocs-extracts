@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.DeleteCaseAuditDto;
+import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.DeleteCaseExtractsDto;
 import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.DeleteCaseAuditResponse;
 import uk.gov.digital.ho.hocs.extracts.repository.AuditRepository;
 import uk.gov.digital.ho.hocs.extracts.repository.entity.AuditEvent;
@@ -23,7 +23,7 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 
 @AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
 @Sql(scripts = "classpath:export/cleandown.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-public class CaseAuditEventResourceTest extends BaseExportResourceTest {
+public class CaseExtractsEventResourceTest extends BaseExportResourceTest {
 
     private AuditEvent auditEvent;
 
@@ -40,10 +40,10 @@ public class CaseAuditEventResourceTest extends BaseExportResourceTest {
 
     @Test
     public void shouldDeleteCaseAudit() {
-        DeleteCaseAuditDto deleteCaseAuditDto = new DeleteCaseAuditDto("1", true);
-        HttpEntity<DeleteCaseAuditDto> httpEntity = new HttpEntity<>(deleteCaseAuditDto, null);
+        DeleteCaseExtractsDto deleteCaseExtractsDto = new DeleteCaseExtractsDto("1", true);
+        HttpEntity<DeleteCaseExtractsDto> httpEntity = new HttpEntity<>(deleteCaseExtractsDto, null);
 
-        ResponseEntity<DeleteCaseAuditResponse> result = restTemplate.exchange(getExportUri("/audit/case/%s/delete", auditEvent.getCaseUUID()),
+        ResponseEntity<DeleteCaseAuditResponse> result = restTemplate.exchange(getExportUri("/extracts/case/%s/delete", auditEvent.getCaseUUID()),
                 POST, httpEntity, DeleteCaseAuditResponse.class);
 
         Assertions.assertNotNull(result);

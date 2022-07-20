@@ -9,7 +9,7 @@ import uk.gov.digital.ho.hocs.extracts.client.info.InfoClient;
 import uk.gov.digital.ho.hocs.extracts.client.info.dto.CaseTypeDto;
 import uk.gov.digital.ho.hocs.extracts.client.info.dto.UserDto;
 import uk.gov.digital.ho.hocs.extracts.core.utils.ZonedDateTimeConverter;
-import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.AuditPayload;
+import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.ExtractsPayload;
 import uk.gov.digital.ho.hocs.extracts.repository.AuditRepository;
 import uk.gov.digital.ho.hocs.extracts.repository.entity.AuditEvent;
 import uk.gov.digital.ho.hocs.extracts.service.domain.ExportType;
@@ -48,8 +48,8 @@ public class CaseNoteExportService extends DynamicExportService {
 
     @Override
     protected String[] parseData(AuditEvent audit, ZonedDateTimeConverter zonedDateTimeConverter, ExportDataConverter exportDataConverter) throws JsonProcessingException {
-        AuditPayload.CaseNote caseNote =
-                objectMapper.readValue(audit.getAuditPayload(), AuditPayload.CaseNote.class);
+        ExtractsPayload.CaseNote caseNote =
+                objectMapper.readValue(audit.getAuditPayload(), ExtractsPayload.CaseNote.class);
 
         String caseNoteText = Objects.toString(caseNote.getText(), "");
 

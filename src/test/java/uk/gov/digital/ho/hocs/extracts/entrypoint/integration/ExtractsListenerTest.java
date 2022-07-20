@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.CreateAuditDto;
+import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.CreateExtractsDto;
 import uk.gov.digital.ho.hocs.extracts.repository.AuditRepository;
 
 import java.time.Duration;
@@ -19,7 +19,7 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 
 @AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
 @Sql(scripts = "classpath:export/cleandown.sql", config = @SqlConfig(transactionMode = ISOLATED))
-public class AuditListenerTest extends BaseAwsSqsIntegrationTest {
+public class ExtractsListenerTest extends BaseAwsSqsIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -29,10 +29,10 @@ public class AuditListenerTest extends BaseAwsSqsIntegrationTest {
 
     @Test
     public void consumeMessageFromQueue() throws JsonProcessingException {
-        CreateAuditDto createAuditDto = new CreateAuditDto(UUID.randomUUID().toString(), "SERVICE", "{}",
+        CreateExtractsDto createExtractsDto = new CreateExtractsDto(UUID.randomUUID().toString(), "SERVICE", "{}",
                 "NAMESPACE", LocalDateTime.now(), "TYPE", "USER");
 
-        amazonSQSAsync.sendMessage(auditQueue, objectMapper.writeValueAsString(createAuditDto));
+        amazonSQSAsync.sendMessage(auditQueue, objectMapper.writeValueAsString(createExtractsDto));
 
         await().until(() -> getNumberOfMessagesOnQueue(auditQueue) == 0);
         await().until(() -> auditRepository.count() == 1);
@@ -40,10 +40,10 @@ public class AuditListenerTest extends BaseAwsSqsIntegrationTest {
 
     @Test
     public void consumeMessageFromQueue_exceptionMakesMessageNotVisible() throws JsonProcessingException {
-        CreateAuditDto createAuditDto = new CreateAuditDto(null, null, null,
+        CreateExtractsDto createExtractsDto = new CreateExtractsDto(null, null, null,
                 null, null, null, null);
 
-        amazonSQSAsync.sendMessage(auditQueue, objectMapper.writeValueAsString(createAuditDto));
+        amazonSQSAsync.sendMessage(auditQueue, objectMapper.writeValueAsString(createExtractsDto));
 
         await().until(() -> getNumberOfMessagesOnQueue(auditQueue) == 0);
         await().timeout(Duration.ofSeconds(20))

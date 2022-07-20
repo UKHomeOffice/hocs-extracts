@@ -8,7 +8,7 @@ import uk.gov.digital.ho.hocs.extracts.client.info.InfoClient;
 import uk.gov.digital.ho.hocs.extracts.client.info.dto.CaseTypeDto;
 import uk.gov.digital.ho.hocs.extracts.client.info.dto.UserDto;
 import uk.gov.digital.ho.hocs.extracts.core.utils.ZonedDateTimeConverter;
-import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.AuditPayload;
+import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.ExtractsPayload;
 import uk.gov.digital.ho.hocs.extracts.repository.AuditRepository;
 import uk.gov.digital.ho.hocs.extracts.repository.entity.AuditEvent;
 import uk.gov.digital.ho.hocs.extracts.service.domain.ExportType;
@@ -44,7 +44,7 @@ public class TopicExportService extends DynamicExportService {
     @Override
     protected String[] parseData(AuditEvent audit, ZonedDateTimeConverter zonedDateTimeConverter, ExportDataConverter exportDataConverter)
             throws JsonProcessingException {
-        AuditPayload.Topic topicData = objectMapper.readValue(audit.getAuditPayload(), AuditPayload.Topic.class);
+        ExtractsPayload.Topic topicData = objectMapper.readValue(audit.getAuditPayload(), ExtractsPayload.Topic.class);
 
         return new String[]{
                 zonedDateTimeConverter.convert(audit.getAuditTimestamp()),

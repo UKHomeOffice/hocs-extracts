@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class DeleteCaseAuditDto {
+public class DeleteCaseExtractsDto {
 
     @JsonProperty(value= "correlation_id", required = true)
     private String correlationID;

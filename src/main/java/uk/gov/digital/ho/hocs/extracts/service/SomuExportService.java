@@ -14,9 +14,9 @@ import uk.gov.digital.ho.hocs.extracts.client.info.dto.SomuTypeField;
 import uk.gov.digital.ho.hocs.extracts.client.info.dto.SomuTypeSchema;
 import uk.gov.digital.ho.hocs.extracts.client.info.dto.UserDto;
 import uk.gov.digital.ho.hocs.extracts.core.LogEvent;
-import uk.gov.digital.ho.hocs.extracts.core.exception.AuditExportException;
+import uk.gov.digital.ho.hocs.extracts.core.exception.ExtractsExportException;
 import uk.gov.digital.ho.hocs.extracts.core.utils.ZonedDateTimeConverter;
-import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.AuditPayload;
+import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.ExtractsPayload;
 import uk.gov.digital.ho.hocs.extracts.repository.AuditRepository;
 import uk.gov.digital.ho.hocs.extracts.repository.entity.AuditEvent;
 import uk.gov.digital.ho.hocs.extracts.service.domain.converter.ExportDataConverter;
@@ -105,7 +105,7 @@ public class SomuExportService {
                         printer.printRecord((Object[]) parsedData);
                     }
                 } catch (IOException e) {
-                    throw new AuditExportException("Unable to parse record for audit {} for reason {}", CSV_RECORD_EXPORT_FAILURE, audit.getUuid(), e.getMessage());
+                    throw new ExtractsExportException("Unable to parse record for audit {} for reason {}", CSV_RECORD_EXPORT_FAILURE, audit.getUuid(), e.getMessage());
                 }
             });
         } catch (IOException e) {
@@ -115,7 +115,7 @@ public class SomuExportService {
 
     private String[] parseData(AuditEvent audit, List<SomuTypeField> headers,
                                ZonedDateTimeConverter zonedDateTimeConverter, ExportDataConverter exportDataConverter) throws IOException {
-        AuditPayload.SomuItem somuData = objectMapper.readValue(audit.getAuditPayload(), AuditPayload.SomuItem.class);
+        ExtractsPayload.SomuItem somuData = objectMapper.readValue(audit.getAuditPayload(), ExtractsPayload.SomuItem.class);
 
         List<String> data = new ArrayList<>();
         data.add(zonedDateTimeConverter.convert(audit.getAuditTimestamp()));
@@ -162,7 +162,7 @@ public class SomuExportService {
     }
 
     private boolean filterSomuType(AuditEvent auditEvent, SomuTypeDto somuTypeDto) throws IOException {
-        AuditPayload.SomuItem somuItem = objectMapper.readValue(auditEvent.getAuditPayload(), AuditPayload.SomuItem.class);
+        ExtractsPayload.SomuItem somuItem = objectMapper.readValue(auditEvent.getAuditPayload(), ExtractsPayload.SomuItem.class);
         return StringUtils.equals(somuItem.getSomuTypeUuid().toString(), somuTypeDto.getUuid().toString());
     }
 
@@ -171,7 +171,7 @@ public class SomuExportService {
                 .stream()
                 .filter(caseTypeDto -> caseTypeDto.getType().equals(caseType))
                 .findFirst()
-                .orElseThrow(() -> new AuditExportException("Invalid case type specified %s", LogEvent.INVALID_CASE_TYPE_SPECIFIED, caseType))
+                .orElseThrow(() -> new ExtractsExportException("Invalid case type specified %s", LogEvent.INVALID_CASE_TYPE_SPECIFIED, caseType))
                 .getShortCode();
     }
 

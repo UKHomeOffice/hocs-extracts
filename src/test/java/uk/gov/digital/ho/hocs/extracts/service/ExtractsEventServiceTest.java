@@ -9,8 +9,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.digital.ho.hocs.extracts.repository.AuditRepository;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -19,7 +17,7 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Sql(scripts = "classpath:export/cleandown.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-public class AuditEventServiceTest {
+public class ExtractsEventServiceTest {
 
     private final String correlationID = "CORRELATION_ID";
     private final String raisingService = "RAISING_SERVICE";
@@ -30,14 +28,14 @@ public class AuditEventServiceTest {
     private final String userID = "USER";
 
     @Autowired
-    private AuditEventService auditService;
+    private ExtractsEventService auditService;
 
     @Autowired
     private AuditRepository auditRepository;
 
     @Test
     public void shouldCreateAudit() {
-        auditService.createAudit(correlationID,
+        auditService.createExtractsEvent(correlationID,
                 raisingService,
                 auditPayload,
                 namespace,
@@ -51,7 +49,7 @@ public class AuditEventServiceTest {
     @Test
     public void shouldNotCreateWithNullCorrelationId() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createAudit(null,
+            auditService.createExtractsEvent(null,
                     raisingService,
                     auditPayload,
                     namespace,
@@ -64,7 +62,7 @@ public class AuditEventServiceTest {
     @Test
     public void shouldNotCreateWithNullRaisingService() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createAudit(correlationID,
+            auditService.createExtractsEvent(correlationID,
                     null,
                     auditPayload,
                     namespace,
@@ -77,7 +75,7 @@ public class AuditEventServiceTest {
     @Test
     public void shouldNotCreateWithNullNamespace() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createAudit(correlationID,
+            auditService.createExtractsEvent(correlationID,
                     raisingService,
                     auditPayload,
                     null,
@@ -90,7 +88,7 @@ public class AuditEventServiceTest {
     @Test
     public void shouldNotCreateWithNullTimestamp() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createAudit(correlationID,
+            auditService.createExtractsEvent(correlationID,
                     raisingService,
                     auditPayload,
                     namespace,
@@ -103,7 +101,7 @@ public class AuditEventServiceTest {
     @Test
     public void shouldNotCreateWithNullType() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createAudit(correlationID,
+            auditService.createExtractsEvent(correlationID,
                     raisingService,
                     auditPayload,
                     namespace,
@@ -116,7 +114,7 @@ public class AuditEventServiceTest {
     @Test
     public void shouldNotCreateWithNullUser() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createAudit(correlationID,
+            auditService.createExtractsEvent(correlationID,
                     raisingService,
                     auditPayload,
                     namespace,
@@ -129,7 +127,7 @@ public class AuditEventServiceTest {
     @Test
     public void shouldCreateAuditWhenAuditPayloadIsInvalid() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createAudit(correlationID,
+            auditService.createExtractsEvent(correlationID,
                     raisingService,
                     "\"Test\" \"Test\"",
                     namespace,
@@ -142,7 +140,7 @@ public class AuditEventServiceTest {
     @Test
     public void shouldCreateAuditWhenAuditPayloadIsEmpty() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createAudit(correlationID,
+            auditService.createExtractsEvent(correlationID,
                     raisingService,
                     "",
                     namespace,
@@ -154,7 +152,7 @@ public class AuditEventServiceTest {
 
     @Test
     public void shouldCreateAuditWhenAuditPayloadIsNull() {
-        auditService.createAudit(correlationID,
+        auditService.createExtractsEvent(correlationID,
                 raisingService,
                 null,
                 namespace,
@@ -166,40 +164,14 @@ public class AuditEventServiceTest {
     }
 
     @Test
-    public void shouldGetAuditForCase() {
-        UUID caseUuid = UUID.randomUUID();
-
-        // setup case preparation
-        auditService.createAudit(caseUuid, UUID.randomUUID(), correlationID, raisingService, null, namespace,
-                dateTime, auditType, userID);
-
-        var audits = auditService.getAuditDataByCaseUUID(caseUuid, new String[]{auditType});
-
-        Assertions.assertEquals(1, audits.size());
-    }
-
-    @Test
-    public void shouldGetAuditForCaseWithBefore() {
-        UUID caseUuid = UUID.randomUUID();
-
-        // setup case preparation
-        auditService.createAudit(caseUuid, UUID.randomUUID(), correlationID, raisingService, null, namespace,
-                dateTime, auditType, userID);
-
-        var audits = auditService.getAuditDataByCaseUUID(caseUuid, new String[]{auditType}, LocalDate.now().minusDays(1));
-
-        Assertions.assertEquals(1, audits.size());
-    }
-
-    @Test
     public void deleteCaseAuditShouldMarkAsDeleted() {
         UUID caseUuid = UUID.randomUUID();
 
         // setup case preparation
-        auditService.createAudit(caseUuid, UUID.randomUUID(), correlationID, raisingService, null, namespace,
+        auditService.createExtractsEvent(caseUuid, UUID.randomUUID(), correlationID, raisingService, null, namespace,
                 dateTime, auditType, userID);
 
-        auditService.deleteCaseAudit(caseUuid, true);
+        auditService.deleteCaseExtractsEvent(caseUuid, true);
 
         var audits = auditRepository.findAuditDataByCaseUUID(caseUuid);
         Assertions.assertEquals(1, audits.size());

@@ -11,7 +11,7 @@ import uk.gov.digital.ho.hocs.extracts.client.casework.CaseworkClient;
 import uk.gov.digital.ho.hocs.extracts.client.info.InfoClient;
 import uk.gov.digital.ho.hocs.extracts.client.info.dto.CaseTypeDto;
 import uk.gov.digital.ho.hocs.extracts.core.LogEvent;
-import uk.gov.digital.ho.hocs.extracts.core.exception.AuditExportException;
+import uk.gov.digital.ho.hocs.extracts.core.exception.ExtractsExportException;
 import uk.gov.digital.ho.hocs.extracts.core.utils.ZonedDateTimeConverter;
 import uk.gov.digital.ho.hocs.extracts.repository.AuditRepository;
 import uk.gov.digital.ho.hocs.extracts.repository.entity.AuditEvent;
@@ -65,7 +65,7 @@ public abstract class DynamicExportService {
                 .stream()
                 .filter(caseTypeDto -> caseTypeDto.getType().equals(caseType))
                 .findFirst()
-                .orElseThrow(() -> new AuditExportException("Invalid case type specified %s", LogEvent.INVALID_CASE_TYPE_SPECIFIED, caseType));
+                .orElseThrow(() -> new ExtractsExportException("Invalid case type specified %s", LogEvent.INVALID_CASE_TYPE_SPECIFIED, caseType));
     }
 
     protected void printData(OutputStream outputStream, ZonedDateTimeConverter zonedDateTimeConverter,
@@ -104,7 +104,7 @@ public abstract class DynamicExportService {
                     printer.printRecord((Object[]) parsedData);
                     printer.flush();
                 } catch (IOException e) {
-                    throw new AuditExportException("Unable to parse record for audit {} for reason {}", CSV_RECORD_EXPORT_FAILURE, audit.getUuid(), e.getMessage());
+                    throw new ExtractsExportException("Unable to parse record for audit {} for reason {}", CSV_RECORD_EXPORT_FAILURE, audit.getUuid(), e.getMessage());
                 }
             });
         } catch (IOException e) {

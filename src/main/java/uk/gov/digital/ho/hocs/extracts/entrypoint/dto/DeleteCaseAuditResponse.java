@@ -23,7 +23,7 @@ public class DeleteCaseAuditResponse {
     @JsonProperty("auditCount")
     private Integer auditCount;
 
-    public static DeleteCaseAuditResponse from(UUID caseUUID, DeleteCaseAuditDto request, Integer auditCount) {
+    public static DeleteCaseAuditResponse from(UUID caseUUID, DeleteCaseExtractsDto request, Integer auditCount) {
         return new DeleteCaseAuditResponse(request.getCorrelationID(), caseUUID, request.getDeleted(), auditCount);
     }
 }

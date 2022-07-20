@@ -8,7 +8,6 @@ import uk.gov.digital.ho.hocs.extracts.repository.entity.AuditEvent;
 import uk.gov.digital.ho.hocs.extracts.repository.entity.CaseReference;
 
 import javax.persistence.QueryHint;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -20,18 +19,6 @@ import static org.hibernate.jpa.QueryHints.HINT_FETCH_SIZE;
 
 @Repository
 public interface AuditRepository extends JpaRepository<AuditEvent, String>, AuditRepositoryCustom {
-
-    @QueryHints(value = {
-            @QueryHint(name = READ_ONLY, value = "true")
-    })
-    @Query(value = "SELECT a.* FROM audit_event a WHERE a.audit_timestamp < 'tomorrow' AND a.case_uuid = ?1 AND a.type IN ?2 AND a.deleted = false", nativeQuery = true)
-    List<AuditEvent> findAuditDataByCaseUUIDAndTypesIn(UUID caseUUID, String[] types);
-
-    @QueryHints(value = {
-            @QueryHint(name = READ_ONLY, value = "true")
-    })
-    @Query(value = "SELECT a.* FROM audit_event a WHERE a.audit_timestamp BETWEEN ?3 AND 'tomorrow' AND a.case_uuid = ?1 AND a.type IN ?2 AND a.deleted = false", nativeQuery = true)
-    List<AuditEvent> findAuditDataByCaseUUIDAndTypesInAndFrom(UUID caseUUID, String[] types, LocalDate from);
 
     @QueryHints(value = {
             @QueryHint(name = HINT_FETCH_SIZE, value = "5000"),

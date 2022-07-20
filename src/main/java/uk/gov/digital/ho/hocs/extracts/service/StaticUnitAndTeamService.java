@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.extracts.client.info.InfoClient;
 import uk.gov.digital.ho.hocs.extracts.client.info.dto.TeamDto;
 import uk.gov.digital.ho.hocs.extracts.client.info.dto.UnitDto;
-import uk.gov.digital.ho.hocs.extracts.core.exception.AuditExportException;
+import uk.gov.digital.ho.hocs.extracts.core.exception.ExtractsExportException;
 import uk.gov.digital.ho.hocs.extracts.service.domain.converter.HeaderConverter;
 
 import java.io.BufferedOutputStream;
@@ -53,14 +53,14 @@ public class StaticUnitAndTeamService {
                     try {
                         printer.printRecord(unit.getUuid(), unit.getDisplayName(), null, null);
                     } catch (IOException e) {
-                        throw new AuditExportException("Unable to parse record for reason {}", CSV_RECORD_EXPORT_FAILURE, e.getMessage());
+                        throw new ExtractsExportException("Unable to parse record for reason {}", CSV_RECORD_EXPORT_FAILURE, e.getMessage());
                     }
                 } else {
                     teams.forEach(team -> {
                         try {
                             printer.printRecord(unit.getUuid(), unit.getDisplayName(), team.getUuid(), team.getDisplayName());
                         } catch (IOException e) {
-                            throw new AuditExportException("Unable to parse record for reason {}", CSV_RECORD_EXPORT_FAILURE, e.getMessage());
+                            throw new ExtractsExportException("Unable to parse record for reason {}", CSV_RECORD_EXPORT_FAILURE, e.getMessage());
                         }
                     });
                 }

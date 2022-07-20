@@ -6,7 +6,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.extracts.client.info.InfoClient;
 import uk.gov.digital.ho.hocs.extracts.client.info.dto.TopicTeamDto;
-import uk.gov.digital.ho.hocs.extracts.core.exception.AuditExportException;
+import uk.gov.digital.ho.hocs.extracts.core.exception.ExtractsExportException;
 import uk.gov.digital.ho.hocs.extracts.service.domain.converter.HeaderConverter;
 
 import java.io.BufferedOutputStream;
@@ -51,7 +51,7 @@ public class StaticTopicAndTeamService {
                     try {
                         printer.printRecord(caseType, topic.getUuid(), topic.getDisplayName(), team.getUuid(), team.getDisplayName());
                     } catch (IOException e) {
-                        throw new AuditExportException("Unable to parse record for reason {}", CSV_RECORD_EXPORT_FAILURE, e.getMessage());
+                        throw new ExtractsExportException("Unable to parse record for reason {}", CSV_RECORD_EXPORT_FAILURE, e.getMessage());
                     }
                 });
             });

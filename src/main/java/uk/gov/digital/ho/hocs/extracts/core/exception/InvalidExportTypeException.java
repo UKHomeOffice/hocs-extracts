@@ -13,12 +13,6 @@ public class InvalidExportTypeException extends RuntimeException {
         this.exception = null;
     }
 
-    public InvalidExportTypeException(String msg, LogEvent event, LogEvent exception, Object... args) {
-        super(String.format(msg, args));
-        this.event = event;
-        this.exception = exception;
-    }
-
     public LogEvent getEvent() {
         return event;
     }

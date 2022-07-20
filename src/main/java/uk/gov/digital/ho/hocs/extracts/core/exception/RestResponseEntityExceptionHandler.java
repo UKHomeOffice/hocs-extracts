@@ -13,8 +13,8 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-import static uk.gov.digital.ho.hocs.extracts.core.LogEvent.AUDIT_EVENT_CREATION_FAILED;
-import static uk.gov.digital.ho.hocs.extracts.core.LogEvent.AUDIT_RECORD_NOT_FOUND;
+import static uk.gov.digital.ho.hocs.extracts.core.LogEvent.EXTRACTS_EVENT_CREATION_FAILED;
+import static uk.gov.digital.ho.hocs.extracts.core.LogEvent.EXTRACTS_RECORD_NOT_FOUND;
 import static uk.gov.digital.ho.hocs.extracts.core.LogEvent.CSV_EXPORT_FAILURE;
 import static uk.gov.digital.ho.hocs.extracts.core.LogEvent.EVENT;
 import static uk.gov.digital.ho.hocs.extracts.core.LogEvent.EXCEPTION;
@@ -30,19 +30,19 @@ public class RestResponseEntityExceptionHandler {
 
     @ExceptionHandler(EntityCreationException.class)
     public ResponseEntity<String> handle(EntityCreationException e) {
-        log.error("EntityCreationException", value(EVENT, AUDIT_EVENT_CREATION_FAILED), value(EXCEPTION, e.toString()));
+        log.error("EntityCreationException", value(EVENT, EXTRACTS_EVENT_CREATION_FAILED), value(EXCEPTION, e.toString()));
         return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handle(EntityNotFoundException e) {
-        log.error("EntityNotFoundException", value(EVENT, AUDIT_RECORD_NOT_FOUND), value(EXCEPTION, e.toString()));
+        log.error("EntityNotFoundException", value(EVENT, EXTRACTS_RECORD_NOT_FOUND), value(EXCEPTION, e.toString()));
         return new ResponseEntity<>(e.getMessage(), NOT_FOUND);
     }
 
-    @ExceptionHandler(AuditExportException.class)
-    public ResponseEntity<String> handle(AuditExportException e) {
-        log.error("AuditExportException", value(EVENT, CSV_EXPORT_FAILURE), value(EXCEPTION, e.toString()));
+    @ExceptionHandler(ExtractsExportException.class)
+    public ResponseEntity<String> handle(ExtractsExportException e) {
+        log.error("ExtractsExportException", value(EVENT, CSV_EXPORT_FAILURE), value(EXCEPTION, e.toString()));
         return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
     }
 

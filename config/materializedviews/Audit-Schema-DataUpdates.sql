@@ -1,4 +1,4 @@
-SET search_path TO audit;
+SET search_path TO extracts;
 
 CREATE MATERIALIZED VIEW DCU_AGGREGATED_CASES_TEMP AS
 WITH CTE_Correspondents AS (

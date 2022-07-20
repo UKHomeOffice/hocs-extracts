@@ -14,7 +14,7 @@ import uk.gov.digital.ho.hocs.extracts.client.info.dto.TeamDto;
 import uk.gov.digital.ho.hocs.extracts.client.info.dto.UnitDto;
 import uk.gov.digital.ho.hocs.extracts.client.info.dto.UserDto;
 import uk.gov.digital.ho.hocs.extracts.core.utils.ZonedDateTimeConverter;
-import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.AuditPayload;
+import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.ExtractsPayload;
 import uk.gov.digital.ho.hocs.extracts.repository.AuditRepository;
 import uk.gov.digital.ho.hocs.extracts.repository.entity.AuditEvent;
 import uk.gov.digital.ho.hocs.extracts.service.domain.ExportType;
@@ -67,7 +67,7 @@ public class CaseDataExportService extends CaseDataDynamicExportService {
                                  ZonedDateTimeConverter zonedDateTimeConverter, ExportDataConverter exportDataConverter,
                                  String[] additionalHeaders)
             throws JsonProcessingException {
-        AuditPayload.CaseData caseData = objectMapper.readValue(audit.getAuditPayload(), AuditPayload.CaseData.class);
+        ExtractsPayload.CaseData caseData = objectMapper.readValue(audit.getAuditPayload(), ExtractsPayload.CaseData.class);
 
         List<String> data = new ArrayList<>();
 

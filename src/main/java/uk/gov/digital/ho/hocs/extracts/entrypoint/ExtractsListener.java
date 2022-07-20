@@ -7,24 +7,24 @@ import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.extracts.core.RequestData;
-import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.CreateAuditDto;
-import uk.gov.digital.ho.hocs.extracts.service.AuditEventService;
+import uk.gov.digital.ho.hocs.extracts.entrypoint.dto.CreateExtractsDto;
+import uk.gov.digital.ho.hocs.extracts.service.ExtractsEventService;
 
 import java.util.Map;
 
 @Service
-public class AuditListener {
+public class ExtractsListener {
 
     private final ObjectMapper objectMapper;
-    private final AuditEventService auditEventService;
+    private final ExtractsEventService exportEventService;
     private final RequestData requestData;
 
 
-    public AuditListener(ObjectMapper objectMapper,
-                         AuditEventService auditEventService,
-                         RequestData requestData) {
+    public ExtractsListener(ObjectMapper objectMapper,
+                            ExtractsEventService exportEventService,
+                            RequestData requestData) {
         this.objectMapper = objectMapper;
-        this.auditEventService = auditEventService;
+        this.exportEventService = exportEventService;
         this.requestData = requestData;
     }
 
@@ -35,8 +35,8 @@ public class AuditListener {
     ) throws JsonProcessingException {
         try {
             requestData.parseMessageHeaders(headers);
-            CreateAuditDto createAuditEvent = objectMapper.readValue(message, CreateAuditDto.class);
-            auditEventService.createAudit(createAuditEvent.getCaseUUID(),
+            CreateExtractsDto createAuditEvent = objectMapper.readValue(message, CreateExtractsDto.class);
+            exportEventService.createExtractsEvent(createAuditEvent.getCaseUUID(),
                     createAuditEvent.getStageUUID(),
                     createAuditEvent.getCorrelationID(),
                     createAuditEvent.getRaisingService(),

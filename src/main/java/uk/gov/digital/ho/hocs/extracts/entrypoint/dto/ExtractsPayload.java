@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
-public interface AuditPayload {
+public interface ExtractsPayload {
 
     @AllArgsConstructor
     @Getter
