@@ -25,7 +25,7 @@ public interface AuditRepository extends JpaRepository<AuditEvent, String>, Audi
             @QueryHint(name = HINT_CACHEABLE, value = "false"),
             @QueryHint(name = READ_ONLY, value = "true")
     })
-    @Query(value = "SELECT a.* FROM audit_event a WHERE a.audit_timestamp BETWEEN ?1 AND ?2 AND a.type in ?3 AND a.case_type = ?4 AND a.deleted = false ORDER BY a.audit_timestamp ASC", nativeQuery = true)
+    @Query(value = "SELECT a.* FROM audit_events a WHERE a.audit_timestamp BETWEEN ?1 AND ?2 AND a.type in ?3 AND a.case_type = ?4 AND a.deleted = false ORDER BY a.audit_timestamp ASC", nativeQuery = true)
     Stream<AuditEvent> findAuditDataByDateRangeAndEvents(LocalDateTime dateFrom, LocalDateTime dateTo, String[] types, String caseType);
 
     @QueryHints(value = {
@@ -33,10 +33,10 @@ public interface AuditRepository extends JpaRepository<AuditEvent, String>, Audi
             @QueryHint(name = HINT_CACHEABLE, value = "false"),
             @QueryHint(name = READ_ONLY, value = "true")
     })
-    @Query(value = "SELECT DISTINCT ON (case_uuid, type) a.* FROM audit_event a WHERE a.audit_timestamp BETWEEN ?1 AND ?2 AND a.type in ?3 AND a.case_type = ?4 AND a.deleted = false ORDER BY a.case_uuid, a.type, a.audit_timestamp DESC;", nativeQuery = true)
+    @Query(value = "SELECT DISTINCT ON (case_uuid, type) a.* FROM audit_events a WHERE a.audit_timestamp BETWEEN ?1 AND ?2 AND a.type in ?3 AND a.case_type = ?4 AND a.deleted = false ORDER BY a.case_uuid, a.type, a.audit_timestamp DESC;", nativeQuery = true)
     Stream<AuditEvent> findLastAuditDataByDateRangeAndEvents(LocalDateTime dateFrom, LocalDateTime dateTo, String[] types, String caseType);
 
-    @Query(value = "SELECT a.* FROM audit_event a WHERE a.case_uuid = ?1", nativeQuery = true)
+    @Query(value = "SELECT a.* FROM audit_events a WHERE a.case_uuid = ?1", nativeQuery = true)
     List<AuditEvent> findAuditDataByCaseUUID(UUID caseUUID);
 
     @QueryHints(value = {
@@ -44,7 +44,7 @@ public interface AuditRepository extends JpaRepository<AuditEvent, String>, Audi
             @QueryHint(name = HINT_CACHEABLE, value = "false"),
             @QueryHint(name = READ_ONLY, value = "true")
     })
-    @Query(value = "SELECT a.* FROM audit_event_latest_events a " +
+    @Query(value = "SELECT a.* FROM audit_events_latest a " +
             "WHERE a.audit_timestamp BETWEEN ?1 AND ?2 AND " +
             "a.type IN ?3 AND " +
             "a.case_type = ?4 AND " +
@@ -57,6 +57,6 @@ public interface AuditRepository extends JpaRepository<AuditEvent, String>, Audi
             @QueryHint(name = HINT_CACHEABLE, value = "false"),
             @QueryHint(name = READ_ONLY, value = "true")
     })
-    @Query(value = "SELECT audit_payload->>'reference' AS caseReference, cast(case_uuid AS VARCHAR(36)) as caseUuid FROM audit_event_latest_events WHERE type = 'CASE_CREATED' AND case_type = ?1", nativeQuery = true)
+    @Query(value = "SELECT audit_payload->>'reference' AS caseReference, cast(case_uuid AS VARCHAR(36)) as caseUuid FROM audit_events_latest WHERE type = 'CASE_CREATED' AND case_type = ?1", nativeQuery = true)
     Stream<CaseReference> getCaseReferencesForType(String caseType);
 }

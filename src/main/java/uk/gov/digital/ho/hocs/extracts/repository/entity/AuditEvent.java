@@ -6,24 +6,20 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "audit_event")
+@IdClass(CompositeKey.class)
+@Table(name = "audit_events")
 @NoArgsConstructor
 public class AuditEvent implements Serializable {
 
     @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
     @Column(name = "uuid")
     @Getter
     private UUID uuid;
@@ -36,22 +32,11 @@ public class AuditEvent implements Serializable {
     @Getter
     private UUID stageUUID;
 
-    @Column(name = "correlation_id")
-    @Getter
-    private String correlationID;
-
-    @Column(name = "raising_service")
-    @Getter
-    private String raisingService;
-
     @Getter
     @Column(name = "audit_payload")
     private String auditPayload;
 
-    @Column(name = "namespace")
-    @Getter
-    private String namespace;
-
+    @Id
     @Column(name = "auditTimestamp")
     @Getter
     private LocalDateTime auditTimestamp;
@@ -73,12 +58,9 @@ public class AuditEvent implements Serializable {
     @Setter
     private Boolean deleted;
 
-    public AuditEvent(String correlationID, String raisingService, String auditPayload, String namespace, LocalDateTime auditTimestamp, String type, String userID) {
+    public AuditEvent(String auditPayload, LocalDateTime auditTimestamp, String type, String userID) {
         this.uuid = UUID.randomUUID();
-        this.correlationID = correlationID;
-        this.raisingService = raisingService;
         this.auditPayload = auditPayload;
-        this.namespace = namespace;
         this.auditTimestamp = auditTimestamp;
         this.type = type;
         this.userID = userID;
@@ -88,8 +70,8 @@ public class AuditEvent implements Serializable {
         this.deleted = false;
     }
 
-    public AuditEvent(UUID caseUUID, UUID stageUUID, String correlationID, String raisingService, String auditPayload, String namespace, LocalDateTime auditTimestamp, String type, String userID) {
-        this(correlationID, raisingService, auditPayload, namespace, auditTimestamp, type, userID);
+    public AuditEvent(UUID caseUUID, UUID stageUUID, String auditPayload, LocalDateTime auditTimestamp, String type, String userID) {
+        this(auditPayload, auditTimestamp, type, userID);
         this.caseUUID = caseUUID;
         this.stageUUID = stageUUID;
         if(caseUUID != null) {

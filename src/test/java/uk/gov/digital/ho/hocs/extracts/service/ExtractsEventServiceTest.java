@@ -38,10 +38,7 @@ public class ExtractsEventServiceTest {
 
     @Test
     public void shouldCreateAudit() {
-        extractsEventService.createExtractsEvent(correlationID,
-                raisingService,
-                auditPayload,
-                namespace,
+        extractsEventService.createExtractsEvent(auditPayload,
                 dateTime,
                 auditType,
                 userID);
@@ -50,51 +47,9 @@ public class ExtractsEventServiceTest {
     }
 
     @Test
-    public void shouldNotCreateWithNullCorrelationId() {
-        Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            extractsEventService.createExtractsEvent(null,
-                    raisingService,
-                    auditPayload,
-                    namespace,
-                    dateTime,
-                    auditType,
-                    userID);
-        });
-    }
-
-    @Test
-    public void shouldNotCreateWithNullRaisingService() {
-        Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            extractsEventService.createExtractsEvent(correlationID,
-                    null,
-                    auditPayload,
-                    namespace,
-                    dateTime,
-                    auditType,
-                    userID);
-        });
-    }
-
-    @Test
-    public void shouldNotCreateWithNullNamespace() {
-        Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            extractsEventService.createExtractsEvent(correlationID,
-                    raisingService,
-                    auditPayload,
-                    null,
-                    dateTime,
-                    auditType,
-                    userID);
-        });
-    }
-
-    @Test
     public void shouldNotCreateWithNullTimestamp() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            extractsEventService.createExtractsEvent(correlationID,
-                    raisingService,
-                    auditPayload,
-                    namespace,
+            extractsEventService.createExtractsEvent(auditPayload,
                     null,
                     auditType,
                     userID);
@@ -104,10 +59,7 @@ public class ExtractsEventServiceTest {
     @Test
     public void shouldNotCreateWithNullType() {
         Assertions.assertThrows(EntityCreationException.class, () -> {
-            extractsEventService.createExtractsEvent(correlationID,
-                    raisingService,
-                    auditPayload,
-                    namespace,
+            extractsEventService.createExtractsEvent(auditPayload,
                     dateTime,
                     null,
                     userID);
@@ -117,10 +69,7 @@ public class ExtractsEventServiceTest {
     @Test
     public void shouldNotCreateWithNullUser() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            extractsEventService.createExtractsEvent(correlationID,
-                    raisingService,
-                    auditPayload,
-                    namespace,
+            extractsEventService.createExtractsEvent(auditPayload,
                     dateTime,
                     auditType,
                     null);
@@ -130,10 +79,7 @@ public class ExtractsEventServiceTest {
     @Test
     public void shouldCreateAuditWhenAuditPayloadIsInvalid() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            extractsEventService.createExtractsEvent(correlationID,
-                    raisingService,
-                    "\"Test\" \"Test\"",
-                    namespace,
+            extractsEventService.createExtractsEvent("\"Test\" \"Test\"",
                     dateTime,
                     auditType,
                     userID);
@@ -143,10 +89,7 @@ public class ExtractsEventServiceTest {
     @Test
     public void shouldCreateAuditWhenAuditPayloadIsEmpty() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            extractsEventService.createExtractsEvent(correlationID,
-                    raisingService,
-                    "",
-                    namespace,
+            extractsEventService.createExtractsEvent("",
                     dateTime,
                     auditType,
                     userID);
@@ -155,10 +98,7 @@ public class ExtractsEventServiceTest {
 
     @Test
     public void shouldCreateAuditWhenAuditPayloadIsNull() {
-        extractsEventService.createExtractsEvent(correlationID,
-                raisingService,
-                null,
-                namespace,
+        extractsEventService.createExtractsEvent(null,
                 dateTime,
                 auditType,
                 userID);
@@ -169,10 +109,7 @@ public class ExtractsEventServiceTest {
     @ParameterizedTest
     @ValueSource(strings = {"CASE_SUMMARY_VIEWED", "CASE_VIEWED", "SOMU_ITEMS_VIEWED", "SOMU_ITEM_VIEWED", "STANDARD_LINE_VIEWED", "TEMPLATE_VIEWED"})
     public void shouldNotCreateIgnoredEventTypes(String value) {
-        extractsEventService.createExtractsEvent(correlationID,
-                raisingService,
-                null,
-                namespace,
+        extractsEventService.createExtractsEvent(auditPayload,
                 dateTime,
                 value,
                 userID);
@@ -185,7 +122,7 @@ public class ExtractsEventServiceTest {
         UUID caseUuid = UUID.randomUUID();
 
         // setup case preparation
-        extractsEventService.createExtractsEvent(caseUuid, UUID.randomUUID(), correlationID, raisingService, null, namespace,
+        extractsEventService.createExtractsEvent(caseUuid, UUID.randomUUID(), null,
                 dateTime, auditType, userID);
 
         extractsEventService.deleteCaseExtractsEvent(caseUuid, true);
