@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hocs-audit
+  name: hocs-extracts
   labels:
     version: {{.VERSION}}
   annotations:
@@ -11,7 +11,7 @@ spec:
   replicas: {{.MIN_REPLICAS}}
   selector:
     matchLabels:
-      name: hocs-audit
+      name: hocs-extracts
   strategy:
     rollingUpdate:
       maxUnavailable: 50%
@@ -20,7 +20,7 @@ spec:
   template:
     metadata:
       labels:
-        name: hocs-audit
+        name: hocs-extracts
         role: hocs-backend
         version: {{.VERSION}}
     spec:
@@ -38,7 +38,7 @@ spec:
           args:
             - --certs=/certs
             - --command=/usr/bin/create-keystore.sh /certs/tls.pem /certs/tls-key.pem /etc/ssl/certs/acp-root.crt
-            - --domain=hocs-audit.${KUBE_NAMESPACE}.svc.cluster.local
+            - --domain=hocs-extracts.${KUBE_NAMESPACE}.svc.cluster.local
             - --domain=localhost
             - --onetime=true
           env:
@@ -145,7 +145,7 @@ spec:
                 - SETGID
           args:
             - --certs=/certs
-            - --domain=hocs-audit.${KUBE_NAMESPACE}.svc.cluster.local
+            - --domain=hocs-extracts.${KUBE_NAMESPACE}.svc.cluster.local
             - --expiry=8760h
             - --command=/usr/local/scripts/trigger_nginx_reload.sh
           env:
@@ -235,8 +235,8 @@ spec:
               memory: 96Mi
               cpu: 100m
 
-        - name: hocs-audit
-          image: quay.io/ukhomeofficedigital/hocs-audit:{{.VERSION}}
+        - name: hocs-extracts
+          image: quay.io/ukhomeofficedigital/hocs-extracts:{{.VERSION}}
           securityContext:
             runAsNonRoot: true
             capabilities:
@@ -258,49 +258,49 @@ spec:
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-audit-rds
+                  name: {{.KUBE_NAMESPACE}}-extracts-rds
                   key: host
             - name: DB_PORT
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-audit-rds
+                  name: {{.KUBE_NAMESPACE}}-extracts-rds
                   key: port
             - name: DB_NAME
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-audit-rds
+                  name: {{.KUBE_NAMESPACE}}-extracts-rds
                   key: name
             - name: DB_SCHEMA_NAME
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-audit-rds
+                  name: {{.KUBE_NAMESPACE}}-extracts-rds
                   key: schema_name
             - name: DB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-audit-rds
+                  name: {{.KUBE_NAMESPACE}}-extracts-rds
                   key: user_name
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-audit-rds
+                  name: {{.KUBE_NAMESPACE}}-extracts-rds
                   key: password
-            - name: AUDIT_QUEUE_NAME
-              value: {{.KUBE_NAMESPACE}}-audit-sqs
-            - name: AWS_SQS_AUDIT_URL
+            - name: EXPORTS_QUEUE_NAME
+              value: {{.KUBE_NAMESPACE}}-extracts-sqs
+            - name: AWS_SQS_EXPORTS_URL
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-audit-sqs
+                  name: {{.KUBE_NAMESPACE}}-extracts-sqs
                   key: sqs_queue_url
             - name: AWS_SQS_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-audit-sqs
+                  name: {{.KUBE_NAMESPACE}}-extracts-sqs
                   key: access_key_id
             - name: AWS_SQS_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-audit-sqs
+                  name: {{.KUBE_NAMESPACE}}-extracts-sqs
                   key: secret_access_key
             - name: HOCS_INFO_SERVICE
               value: 'https://hocs-info-service.{{.KUBE_NAMESPACE}}.svc.cluster.local'

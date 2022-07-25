@@ -2,13 +2,13 @@ apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   labels:
-    app: hocs-audit
-  name: hocs-audit
+    app: hocs-extracts
+  name: hocs-extracts
 spec:
   maxReplicas: {{.MAX_REPLICAS}}
   minReplicas: {{.MIN_REPLICAS}}
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: hocs-audit
+    name: hocs-extracts
   targetCPUUtilizationPercentage: 70

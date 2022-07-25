@@ -5,7 +5,7 @@ USER root
 COPY . .
 RUN ./gradlew clean assemble --no-daemon
 
-RUN java -Djarmode=layertools -jar ./build/libs/hocs-audit.jar extract
+RUN java -Djarmode=layertools -jar ./build/libs/hocs-extracts.jar extract
 
 FROM quay.io/ukhomeofficedigital/hocs-base-image
 
