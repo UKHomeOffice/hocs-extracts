@@ -2,12 +2,15 @@ package uk.gov.digital.ho.hocs.extracts.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
+import uk.gov.digital.ho.hocs.extracts.core.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.extracts.repository.AuditRepository;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -28,14 +31,14 @@ public class ExtractsEventServiceTest {
     private final String userID = "USER";
 
     @Autowired
-    private ExtractsEventService auditService;
+    private ExtractsEventService extractsEventService;
 
     @Autowired
     private AuditRepository auditRepository;
 
     @Test
     public void shouldCreateAudit() {
-        auditService.createExtractsEvent(correlationID,
+        extractsEventService.createExtractsEvent(correlationID,
                 raisingService,
                 auditPayload,
                 namespace,
@@ -49,7 +52,7 @@ public class ExtractsEventServiceTest {
     @Test
     public void shouldNotCreateWithNullCorrelationId() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createExtractsEvent(null,
+            extractsEventService.createExtractsEvent(null,
                     raisingService,
                     auditPayload,
                     namespace,
@@ -62,7 +65,7 @@ public class ExtractsEventServiceTest {
     @Test
     public void shouldNotCreateWithNullRaisingService() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createExtractsEvent(correlationID,
+            extractsEventService.createExtractsEvent(correlationID,
                     null,
                     auditPayload,
                     namespace,
@@ -75,7 +78,7 @@ public class ExtractsEventServiceTest {
     @Test
     public void shouldNotCreateWithNullNamespace() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createExtractsEvent(correlationID,
+            extractsEventService.createExtractsEvent(correlationID,
                     raisingService,
                     auditPayload,
                     null,
@@ -88,7 +91,7 @@ public class ExtractsEventServiceTest {
     @Test
     public void shouldNotCreateWithNullTimestamp() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createExtractsEvent(correlationID,
+            extractsEventService.createExtractsEvent(correlationID,
                     raisingService,
                     auditPayload,
                     namespace,
@@ -100,8 +103,8 @@ public class ExtractsEventServiceTest {
 
     @Test
     public void shouldNotCreateWithNullType() {
-        Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createExtractsEvent(correlationID,
+        Assertions.assertThrows(EntityCreationException.class, () -> {
+            extractsEventService.createExtractsEvent(correlationID,
                     raisingService,
                     auditPayload,
                     namespace,
@@ -114,7 +117,7 @@ public class ExtractsEventServiceTest {
     @Test
     public void shouldNotCreateWithNullUser() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createExtractsEvent(correlationID,
+            extractsEventService.createExtractsEvent(correlationID,
                     raisingService,
                     auditPayload,
                     namespace,
@@ -127,7 +130,7 @@ public class ExtractsEventServiceTest {
     @Test
     public void shouldCreateAuditWhenAuditPayloadIsInvalid() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createExtractsEvent(correlationID,
+            extractsEventService.createExtractsEvent(correlationID,
                     raisingService,
                     "\"Test\" \"Test\"",
                     namespace,
@@ -140,7 +143,7 @@ public class ExtractsEventServiceTest {
     @Test
     public void shouldCreateAuditWhenAuditPayloadIsEmpty() {
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
-            auditService.createExtractsEvent(correlationID,
+            extractsEventService.createExtractsEvent(correlationID,
                     raisingService,
                     "",
                     namespace,
@@ -152,7 +155,7 @@ public class ExtractsEventServiceTest {
 
     @Test
     public void shouldCreateAuditWhenAuditPayloadIsNull() {
-        auditService.createExtractsEvent(correlationID,
+        extractsEventService.createExtractsEvent(correlationID,
                 raisingService,
                 null,
                 namespace,
@@ -163,15 +166,29 @@ public class ExtractsEventServiceTest {
         Assertions.assertEquals(1, auditRepository.count());
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"CASE_SUMMARY_VIEWED", "CASE_VIEWED", "SOMU_ITEMS_VIEWED", "SOMU_ITEM_VIEWED", "STANDARD_LINE_VIEWED", "TEMPLATE_VIEWED"})
+    public void shouldNotCreateIgnoredEventTypes(String value) {
+        extractsEventService.createExtractsEvent(correlationID,
+                raisingService,
+                null,
+                namespace,
+                dateTime,
+                value,
+                userID);
+
+        Assertions.assertEquals(0, auditRepository.findAll().stream().filter(e-> e.getType().equals(value)).count());
+    }
+
     @Test
     public void deleteCaseAuditShouldMarkAsDeleted() {
         UUID caseUuid = UUID.randomUUID();
 
         // setup case preparation
-        auditService.createExtractsEvent(caseUuid, UUID.randomUUID(), correlationID, raisingService, null, namespace,
+        extractsEventService.createExtractsEvent(caseUuid, UUID.randomUUID(), correlationID, raisingService, null, namespace,
                 dateTime, auditType, userID);
 
-        auditService.deleteCaseExtractsEvent(caseUuid, true);
+        extractsEventService.deleteCaseExtractsEvent(caseUuid, true);
 
         var audits = auditRepository.findAuditDataByCaseUUID(caseUuid);
         Assertions.assertEquals(1, audits.size());
