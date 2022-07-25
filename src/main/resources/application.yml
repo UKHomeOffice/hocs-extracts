@@ -2,7 +2,6 @@ info:
   app:
     fullname: Hocs Extracts Service
     name: ${name:hocs-extracts-service}
-    version: ${version:0.0.1}
 
 server:
   http2:
