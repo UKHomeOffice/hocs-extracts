@@ -38,10 +38,7 @@ public class ExtractsListener {
             CreateExtractsDto createAuditEvent = objectMapper.readValue(message, CreateExtractsDto.class);
             exportEventService.createExtractsEvent(createAuditEvent.getCaseUUID(),
                     createAuditEvent.getStageUUID(),
-                    createAuditEvent.getCorrelationID(),
-                    createAuditEvent.getRaisingService(),
                     createAuditEvent.getAuditPayload(),
-                    createAuditEvent.getNamespace(),
                     createAuditEvent.getAuditTimestamp(),
                     createAuditEvent.getType(),
                     createAuditEvent.getUserID());
