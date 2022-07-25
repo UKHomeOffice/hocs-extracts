@@ -32,8 +32,8 @@ public class CaseExtractsEventResourceTest extends BaseExportResourceTest {
 
     @BeforeEach
     public void setup() {
-        auditEvent = new AuditEvent(UUID.randomUUID(), UUID.randomUUID(), "TEST", "TEST",
-                "{}", "TEST", LocalDateTime.now(), "TEST", "TEST");
+        auditEvent = new AuditEvent(UUID.randomUUID(), UUID.randomUUID(),
+                "{}", LocalDateTime.now(), "TEST", "TEST");
 
         auditRepository.save(auditEvent);
     }

@@ -21,11 +21,11 @@ WITH CTE_Correspondents AS (
                                       ORDER BY audit_timestamp DESC
                                       ) AS MostRecentUpdate_RK,
                                   audit_payload::jsonb->>'type' as "correspondentType"
-                      FROM audit_event
+                      FROM audit_events
                       WHERE "type" IN ('CORRESPONDENT_CREATED', 'CORRESPONDENT_UPDATED')
                         AND audit_payload::jsonb->>'uuid' NOT IN (
                           SELECT audit_payload::jsonb->>'uuid'
-                          FROM audit_event
+                          FROM audit_events
                           WHERE "type" = 'CORRESPONDENT_DELETED'
                             AND audit_payload::jsonb->>'uuid' IS NOT NULL
                       )
@@ -38,7 +38,7 @@ WITH CTE_Correspondents AS (
          SELECT
              case_uuid::text,
              count(audit_timestamp) AS "commentCount"
-         FROM audit_event
+         FROM audit_events
          WHERE "type" = ('CASE_NOTE_CREATED')
            AND case_uuid IS NOT NULL
            AND NOT deleted
@@ -71,65 +71,65 @@ SELECT
 FROM (
          SELECT
              case_uuid::text as "caseUuid",
-             MAX(deadline) FILTER( WHERE stageName LIKE '%_MARKUP' AND ranked.type = 'STAGE_CREATED' AND Last_Of_Stage_Event_RK = 1) AS "markupDeadline",
-             MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_INITIAL_DRAFT' AND ranked.type = 'STAGE_RECREATED' AND Last_Of_Stage_Event_RK = 1) AS "reDraftStarted",
-             MAX(allocatedToUUID) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'TEAM') AS "assignedTeam",
-             MAX(allocatedToUUID) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'TEAM') AS "assignedUnit",
-             MAX(allocatedToUUID) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'USER') AS "assignedUser",
-             MAX(reference) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "reference",
-             MAX(caseDeadline) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "caseDeadline",
-             COALESCE(MAX('OGD') FILTER( WHERE "transferConfirmation" = 'ACCEPT'), MAX('NRN') FILTER( WHERE "noReplyNeededConfirmation" = 'ACCEPT'), MAX('Case Completed') FILTER( WHERE ranked.type = 'CASE_COMPLETED' AND Last_Of_Event_RK = 1), 'In Progress') AS "caseStatus",
+                 MAX(deadline) FILTER( WHERE stageName LIKE '%_MARKUP' AND ranked.type = 'STAGE_CREATED' AND Last_Of_Stage_Event_RK = 1) AS "markupDeadline",
+                 MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_INITIAL_DRAFT' AND ranked.type = 'STAGE_RECREATED' AND Last_Of_Stage_Event_RK = 1) AS "reDraftStarted",
+                 MAX(allocatedToUUID) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'TEAM') AS "assignedTeam",
+                 MAX(allocatedToUUID) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'TEAM') AS "assignedUnit",
+                 MAX(allocatedToUUID) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'USER') AS "assignedUser",
+                 MAX(reference) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "reference",
+                 MAX(caseDeadline) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "caseDeadline",
+                 COALESCE(MAX('OGD') FILTER( WHERE "transferConfirmation" = 'ACCEPT'), MAX('NRN') FILTER( WHERE "noReplyNeededConfirmation" = 'ACCEPT'), MAX('Case Completed') FILTER( WHERE ranked.type = 'CASE_COMPLETED' AND Last_Of_Event_RK = 1), 'In Progress') AS "caseStatus",
              MAX(stageName) FILTER( WHERE Last_Stage_Event_Of_Case_RK = 1) AS "currentStage",
-             MAX(originalChannel) FILTER( WHERE ranked.type = 'CASE_UPDATED' AND Last_Of_Event_RK = 1) AS "originalChannel",
-             MAX(audit_timestamp) FILTER( WHERE ranked.type = 'CASE_COMPLETED' AND Last_Of_Event_RK = 1) AS "caseCompleted",
-             MAX(payloadType) FILTER( WHERE ranked.type = 'CASE_CREATED' AND Last_Of_Event_RK = 1) AS "caseType",
-             MAX(audit_timestamp) FILTER( WHERE ranked.type = 'CASE_CREATED') AS "caseCreated",
-             MAX(dateOfCorrespondence) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'CASE_DATA') AS "dateOfCorrespondence",
-             MAX(dateReceived) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'CASE_DATA') AS "dateReceived",
-             MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_MINISTER_SIGN_OFF' AND ranked.type = 'STAGE_CREATED' AND Last_Of_Stage_Event_RK = 1) AS "ministerSignOffStarted",
-             MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_DISPATCH' AND ranked.type = 'STAGE_ALLOCATED_TO_USER' AND Last_Of_Stage_Event_RK = 1) AS "dispatchAllocatedToUser",
-             MAX(deadline) FILTER( WHERE stageName LIKE '%_DISPATCH' AND ranked.type = 'STAGE_CREATED' AND Last_Of_Stage_Event_RK = 1) AS "dispatchDeadline",
-             MAX(deadline) FILTER( WHERE stageName LIKE '%_INITIAL_DRAFT' AND ranked.type = 'STAGE_CREATED' AND Last_Of_Stage_Event_RK = 1) AS "initialDraftDeadline",
-             MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_INITIAL_DRAFT' AND ranked.type = 'STAGE_ALLOCATED_TO_USER' AND Last_Of_Stage_Event_RK = 1) AS "initialDraftAllocatedToUser",
-             MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_MINISTER_SIGN_OFF' AND dataTypeChange = 'TEAM' AND Last_dataTypeChange_Of_Stage_RK = 1 AND allocatedToUUID = '3d2c7893-92c5-4347-804a-8826f06f0c9d') AS "homeSecSignOffStarted",
-             COALESCE(MAX(true::varchar) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1 AND privateOfficeTeamUUID = '3d2c7893-92c5-4347-804a-8826f06f0c9d'), false::varchar) AS "homeSecSignOff",
+                 MAX(originalChannel) FILTER( WHERE ranked.type = 'CASE_UPDATED' AND Last_Of_Event_RK = 1) AS "originalChannel",
+                 MAX(audit_timestamp) FILTER( WHERE ranked.type = 'CASE_COMPLETED' AND Last_Of_Event_RK = 1) AS "caseCompleted",
+                 MAX(payloadType) FILTER( WHERE ranked.type = 'CASE_CREATED' AND Last_Of_Event_RK = 1) AS "caseType",
+                 MAX(audit_timestamp) FILTER( WHERE ranked.type = 'CASE_CREATED') AS "caseCreated",
+                 MAX(dateOfCorrespondence) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'CASE_DATA') AS "dateOfCorrespondence",
+                 MAX(dateReceived) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'CASE_DATA') AS "dateReceived",
+                 MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_MINISTER_SIGN_OFF' AND ranked.type = 'STAGE_CREATED' AND Last_Of_Stage_Event_RK = 1) AS "ministerSignOffStarted",
+                 MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_DISPATCH' AND ranked.type = 'STAGE_ALLOCATED_TO_USER' AND Last_Of_Stage_Event_RK = 1) AS "dispatchAllocatedToUser",
+                 MAX(deadline) FILTER( WHERE stageName LIKE '%_DISPATCH' AND ranked.type = 'STAGE_CREATED' AND Last_Of_Stage_Event_RK = 1) AS "dispatchDeadline",
+                 MAX(deadline) FILTER( WHERE stageName LIKE '%_INITIAL_DRAFT' AND ranked.type = 'STAGE_CREATED' AND Last_Of_Stage_Event_RK = 1) AS "initialDraftDeadline",
+                 MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_INITIAL_DRAFT' AND ranked.type = 'STAGE_ALLOCATED_TO_USER' AND Last_Of_Stage_Event_RK = 1) AS "initialDraftAllocatedToUser",
+                 MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_MINISTER_SIGN_OFF' AND dataTypeChange = 'TEAM' AND Last_dataTypeChange_Of_Stage_RK = 1 AND allocatedToUUID = '3d2c7893-92c5-4347-804a-8826f06f0c9d') AS "homeSecSignOffStarted",
+                 COALESCE(MAX(true::varchar) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1 AND privateOfficeTeamUUID = '3d2c7893-92c5-4347-804a-8826f06f0c9d'), false::varchar) AS "homeSecSignOff",
              MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_PRIVATE_OFFICE' AND dataTypeChange = 'TEAM' AND Last_dataTypeChange_Of_Stage_RK = 1 AND allocatedToUUID = '3d2c7893-92c5-4347-804a-8826f06f0c9d') AS "homeSecPrivateOfficeApprovalStarted",
-             MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_MARKUP' AND ranked.type = 'STAGE_CREATED' AND Last_Of_Stage_Event_RK = 1) AS "markupStarted",
-             MAX(markupDecision) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'CASE_DATA') AS "markupDecision",
-             MAX(privateOfficeTeamUUID) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "privateOfficeTeam",
-             MAX(draftingTeamUUID) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "draftingTeam",
-             MAX(primaryTopic) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "primaryTopic",
-             MAX(draftingTeamUUID) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "draftingUnit",
-             MAX(audit_timestamp) FILTER( WHERE Last_event_Of_Case_RK = 1) AS "lastModified",
-             MAX(allocatedToUUID) FILTER( WHERE stageName LIKE '%_INITIAL_DRAFT' AND ranked.type = 'STAGE_CREATED' AND First_Of_Stage_Event_RK = 1) AS "originalDraftTeam",
-             MAX(allocatedToUUID) FILTER( WHERE stageName LIKE '%_INITIAL_DRAFT' AND ranked.type = 'STAGE_CREATED' AND First_Of_Stage_Event_RK = 1) AS "originalDraftUnit",
-             MAX(allocatedToUUID) FILTER( WHERE stageName LIKE '%_INITIAL_DRAFT' AND ranked.type = 'STAGE_ALLOCATED_TO_USER' AND First_Of_Stage_Event_RK = 1) AS "originalDraftUser",
-             MAX(audit_timestamp) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'USER') AS "assignedUserUpdated",
-             MAX(deadline) FILTER( WHERE stageName LIKE '%_PRIVATE_OFFICE' AND ranked.type = 'STAGE_CREATED' AND Last_Of_Stage_Event_RK = 1) AS "privateOfficeDeadline",
-             MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_PRIVATE_OFFICE' AND ranked.type = 'STAGE_CREATED' AND First_Of_Stage_Event_RK = 1) AS "privateOfficeStarted",
-             MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_PRIVATE_OFFICE' AND ranked.type = 'STAGE_RECREATED' AND Last_Of_Stage_Event_RK = 1) AS "privateOfficeLatest",
-             MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_QA_RESPONSE' AND ranked.type = 'STAGE_CREATED' AND Last_Of_Stage_Event_RK = 1) AS "qaResponseStarted",
-             MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_QA_RESPONSE' AND ranked.type = 'STAGE_ALLOCATED_TO_USER' AND Last_Of_Stage_Event_RK = 1) AS "qaResponseAllocatedToUser",
-             MAX(audit_timestamp) FILTER( WHERE Last_Stage_Event_Of_Case_RK = 1) AS "latestStageChange",
-             MAX(audit_timestamp) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'CASE_DATA') AS "latestDataChange",
-             MAX(user_id) FILTER( WHERE Last_event_Of_Case_RK = 1) AS "lastModifiedBy",
-             MAX("ogdDept") FILTER( WHERE "transferConfirmation" = 'ACCEPT') AS "ogdDept",
-             MAX("copyNumberTen") FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'CASE_DATA') AS "copyNumberTen",
-             COALESCE(MAX(true::varchar) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1 AND privateOfficeTeamUUID = '3d2c7893-92c5-4347-804a-8826f06f0c9d' AND "ministerSignOffDecision" = 'ACCEPT'), false::varchar) AS "homeSecSignedOff",
+                 MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_MARKUP' AND ranked.type = 'STAGE_CREATED' AND Last_Of_Stage_Event_RK = 1) AS "markupStarted",
+                 MAX(markupDecision) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'CASE_DATA') AS "markupDecision",
+                 MAX(privateOfficeTeamUUID) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "privateOfficeTeam",
+                 MAX(draftingTeamUUID) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "draftingTeam",
+                 MAX(primaryTopic) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "primaryTopic",
+                 MAX(draftingTeamUUID) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "draftingUnit",
+                 MAX(audit_timestamp) FILTER( WHERE Last_event_Of_Case_RK = 1) AS "lastModified",
+                 MAX(allocatedToUUID) FILTER( WHERE stageName LIKE '%_INITIAL_DRAFT' AND ranked.type = 'STAGE_CREATED' AND First_Of_Stage_Event_RK = 1) AS "originalDraftTeam",
+                 MAX(allocatedToUUID) FILTER( WHERE stageName LIKE '%_INITIAL_DRAFT' AND ranked.type = 'STAGE_CREATED' AND First_Of_Stage_Event_RK = 1) AS "originalDraftUnit",
+                 MAX(allocatedToUUID) FILTER( WHERE stageName LIKE '%_INITIAL_DRAFT' AND ranked.type = 'STAGE_ALLOCATED_TO_USER' AND First_Of_Stage_Event_RK = 1) AS "originalDraftUser",
+                 MAX(audit_timestamp) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'USER') AS "assignedUserUpdated",
+                 MAX(deadline) FILTER( WHERE stageName LIKE '%_PRIVATE_OFFICE' AND ranked.type = 'STAGE_CREATED' AND Last_Of_Stage_Event_RK = 1) AS "privateOfficeDeadline",
+                 MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_PRIVATE_OFFICE' AND ranked.type = 'STAGE_CREATED' AND First_Of_Stage_Event_RK = 1) AS "privateOfficeStarted",
+                 MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_PRIVATE_OFFICE' AND ranked.type = 'STAGE_RECREATED' AND Last_Of_Stage_Event_RK = 1) AS "privateOfficeLatest",
+                 MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_QA_RESPONSE' AND ranked.type = 'STAGE_CREATED' AND Last_Of_Stage_Event_RK = 1) AS "qaResponseStarted",
+                 MAX(audit_timestamp) FILTER( WHERE stageName LIKE '%_QA_RESPONSE' AND ranked.type = 'STAGE_ALLOCATED_TO_USER' AND Last_Of_Stage_Event_RK = 1) AS "qaResponseAllocatedToUser",
+                 MAX(audit_timestamp) FILTER( WHERE Last_Stage_Event_Of_Case_RK = 1) AS "latestStageChange",
+                 MAX(audit_timestamp) FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'CASE_DATA') AS "latestDataChange",
+                 MAX(user_id) FILTER( WHERE Last_event_Of_Case_RK = 1) AS "lastModifiedBy",
+                 MAX("ogdDept") FILTER( WHERE "transferConfirmation" = 'ACCEPT') AS "ogdDept",
+                 MAX("copyNumberTen") FILTER( WHERE Last_dataTypeChange_Of_Case_RK = 1 AND dataTypeChange = 'CASE_DATA') AS "copyNumberTen",
+                 COALESCE(MAX(true::varchar) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1 AND privateOfficeTeamUUID = '3d2c7893-92c5-4347-804a-8826f06f0c9d' AND "ministerSignOffDecision" = 'ACCEPT'), false::varchar) AS "homeSecSignedOff",
              COALESCE(MAX(true::varchar) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1 AND privateOfficeTeamUUID = '5311138e-33bc-434d-9bce-a933a51a3146' AND "ministerSignOffDecision" = 'ACCEPT'), false::varchar) AS "lordsMinisterSignedOff",
              MAX("primaryCorrespondentUuid") AS "primaryCorrespondentUuid",
              MAX(defaultPolicyTeamUUID) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "defaultPolicyTeamUUID",
-             MAX(defaultPolicyTeamUUID) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "defaultPolicyTeamUnit",
-             MAX(draftCount) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "draftCount",
-             MAX(qaOnlineCount) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "qaOnlineCount",
-             MAX(homeSecInterest) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "homeSecInterest",
-             MAX(homeSecReply) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "homeSecReply",
-             MAX(draftingTeamUnitHistoricName) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "draftingTeamUnitHistoricName", -- add historic unit name fields
-             MAX(poTeamUnitHistoricName) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "poTeamUnitHistoricName",
-             MAX(overrideDraftingTeamUnitHistoricName) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "overrideDraftingTeamUnitHistoricName",
-             MAX(overridePOTeamUnitHistoricName) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "overridePOTeamUnitHistoricName",
-             MAX(privateOfficeOverridePOTeamUnitHistoricName) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "privateOfficeOverridePOTeamUnitHistoricName",
-             MAX(defaultPolicyTeamUnitHistoricName) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "defaultPolicyTeamUnitHistoricName"
+                 MAX(defaultPolicyTeamUUID) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "defaultPolicyTeamUnit",
+                 MAX(draftCount) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "draftCount",
+                 MAX(qaOnlineCount) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "qaOnlineCount",
+                 MAX(homeSecInterest) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "homeSecInterest",
+                 MAX(homeSecReply) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "homeSecReply",
+                 MAX(draftingTeamUnitHistoricName) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "draftingTeamUnitHistoricName", -- add historic unit name fields
+                 MAX(poTeamUnitHistoricName) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "poTeamUnitHistoricName",
+                 MAX(overrideDraftingTeamUnitHistoricName) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "overrideDraftingTeamUnitHistoricName",
+                 MAX(overridePOTeamUnitHistoricName) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "overridePOTeamUnitHistoricName",
+                 MAX(privateOfficeOverridePOTeamUnitHistoricName) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "privateOfficeOverridePOTeamUnitHistoricName",
+                 MAX(defaultPolicyTeamUnitHistoricName) FILTER( WHERE dataTypeChange = 'CASE_DATA' AND Last_dataTypeChange_Of_Case_RK = 1) AS "defaultPolicyTeamUnitHistoricName"
          FROM (
                   SELECT
                       to_char(audit_timestamp, 'YYYY-MM-DD"T"HH24:MI:SS.US') AS audit_timestamp,
@@ -139,33 +139,33 @@ FROM (
                       user_id,
                       RANK() OVER (
                           PARTITION BY ad.case_uuid, stage_uuid, ad.type
-                          ORDER BY ad.audit_timestamp DESC, ad.id DESC
+                          ORDER BY ad.audit_timestamp DESC
                           ) AS Last_Of_Stage_Event_RK,
-                      RANK() OVER (
+                          RANK() OVER (
                           PARTITION BY ad.case_uuid, stage_uuid, ad.type
-                          ORDER BY ad.audit_timestamp ASC, ad.id DESC
+                          ORDER BY ad.audit_timestamp ASC
                           ) AS First_Of_Stage_Event_RK,
-                      RANK() OVER (
+                          RANK() OVER (
                           PARTITION BY ad.case_uuid, ad.type
-                          ORDER BY ad.audit_timestamp DESC, ad.id DESC
+                          ORDER BY ad.audit_timestamp DESC
                           ) AS Last_Of_Event_RK,
-                      RANK() OVER (
+                          RANK() OVER (
                           PARTITION BY ad.case_uuid
-                          ORDER BY CASE WHEN audit_payload::jsonb->>'stage' IS NULL THEN 0 ELSE 1 END DESC, ad.audit_timestamp DESC, ad.id DESC
+                          ORDER BY CASE WHEN audit_payload::jsonb->>'stage' IS NULL THEN 0 ELSE 1 END DESC, ad.audit_timestamp DESC
                           ) AS Last_Stage_Event_Of_Case_RK,
-                      RANK() OVER (
+                          RANK() OVER (
                           PARTITION BY ad.case_uuid
-                          ORDER BY ad.audit_timestamp DESC, ad.id DESC
+                          ORDER BY ad.audit_timestamp DESC
                           ) AS Last_Event_Of_Case_RK,
-                      RANK() OVER (
+                          RANK() OVER (
                           PARTITION BY ad.case_uuid, dataTypeChange
-                          ORDER BY ad.audit_timestamp DESC, ad.id DESC
+                          ORDER BY ad.audit_timestamp DESC
                           ) AS Last_dataTypeChange_Of_Case_RK,
-                      RANK() OVER (
+                          RANK() OVER (
                           PARTITION BY ad.case_uuid, stage_uuid, dataTypeChange
-                          ORDER BY ad.audit_timestamp DESC, ad.id DESC
+                          ORDER BY ad.audit_timestamp DESC
                           ) AS Last_dataTypeChange_Of_Stage_RK,
-                      audit_payload::jsonb->>'stage' AS stageName,
+                          audit_payload::jsonb->>'stage' AS stageName,
                       audit_payload::jsonb->>'allocatedToUUID' AS allocatedToUUID,
                       audit_payload::jsonb->>'deadline' AS deadline,
                       audit_payload::jsonb->>'reference' AS reference,
@@ -196,31 +196,30 @@ FROM (
                       audit_payload::jsonb->'data'->>'PrivateOfficeOverridePOTeamUnitHistoricName' AS privateOfficeOverridePOTeamUnitHistoricName,
                       audit_payload::jsonb->'data'->>'DefaultPolicyTeamUnitHistoricName' AS defaultPolicyTeamUnitHistoricName
                   FROM (
-                           SELECT
-                               audit_payload,
-                               audit_timestamp,
-                               case_uuid,
-                               "id",
-                               stage_uuid,
-                               "type",
-                               user_id,
-                               CASE WHEN "type" IN ('CASE_CREATED', 'CASE_UPDATED') THEN 'CASE_DATA'
-                                    WHEN "type" IN ('STAGE_ALLOCATED_TO_USER', 'STAGE_UNALLOCATED_FROM_USER') THEN 'USER'
-                                    WHEN "type" IN ('STAGE_CREATED', 'STAGE_ALLOCATED_TO_TEAM') THEN 'TEAM'
-                                   END AS dataTypeChange
-                           FROM audit_event
-                           WHERE case_type IN ('a1', 'a2', 'a3')
-                             AND "type" IN ('CASE_COMPLETED',
-                                            'CASE_CREATED',
-                                            'CASE_UPDATED',
-                                            'STAGE_ALLOCATED_TO_TEAM',
-                                            'STAGE_ALLOCATED_TO_USER',
-                                            'STAGE_COMPLETED',
-                                            'STAGE_CREATED',
-                                            'STAGE_RECREATED',
-                                            'STAGE_UNALLOCATED_FROM_USER')
-                             AND NOT deleted
-                       ) ad
+                      SELECT
+                      audit_payload,
+                      audit_timestamp,
+                      case_uuid,
+                      stage_uuid,
+                      "type",
+                      user_id,
+                      CASE WHEN "type" IN ('CASE_CREATED', 'CASE_UPDATED') THEN 'CASE_DATA'
+                      WHEN "type" IN ('STAGE_ALLOCATED_TO_USER', 'STAGE_UNALLOCATED_FROM_USER') THEN 'USER'
+                      WHEN "type" IN ('STAGE_CREATED', 'STAGE_ALLOCATED_TO_TEAM') THEN 'TEAM'
+                      END AS dataTypeChange
+                      FROM audit_events
+                      WHERE case_type IN ('a1', 'a2', 'a3')
+                      AND "type" IN ('CASE_COMPLETED',
+                      'CASE_CREATED',
+                      'CASE_UPDATED',
+                      'STAGE_ALLOCATED_TO_TEAM',
+                      'STAGE_ALLOCATED_TO_USER',
+                      'STAGE_COMPLETED',
+                      'STAGE_CREATED',
+                      'STAGE_RECREATED',
+                      'STAGE_UNALLOCATED_FROM_USER')
+                      AND NOT deleted
+                      ) ad
                   ORDER BY audit_timestamp DESC
               ) ranked
          GROUP BY case_uuid
@@ -232,12 +231,12 @@ FROM (
         CTE_Correspondents cc
     WHERE cc.case_uuid = grouped."caseUuid"
       AND cc."correspondentUUID" <> grouped."primaryCorrespondentUuid"
-    LIMIT 1
+        LIMIT 1
     ) sc
-                         ON sc.case_uuid = grouped."caseUuid"
-                             AND sc."correspondentUUID" <> grouped."primaryCorrespondentUuid"
-         LEFT OUTER JOIN CTE_CommentCounts commentCounts
-                         ON commentCounts.case_uuid = grouped."caseUuid"
+ON sc.case_uuid = grouped."caseUuid"
+    AND sc."correspondentUUID" <> grouped."primaryCorrespondentUuid"
+    LEFT OUTER JOIN CTE_CommentCounts commentCounts
+    ON commentCounts.case_uuid = grouped."caseUuid"
 WITH NO DATA;
 
 CREATE UNIQUE INDEX idx_dcu_aggregated_cases_temp_case_uuid ON DCU_AGGREGATED_CASES_TEMP("caseUuid");
