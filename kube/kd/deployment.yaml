@@ -285,9 +285,9 @@ spec:
                 secretKeyRef:
                   name: {{.KUBE_NAMESPACE}}-extracts-rds
                   key: password
-            - name: EXPORTS_QUEUE_NAME
+            - name: EXTRACTS_QUEUE_NAME
               value: {{.KUBE_NAMESPACE}}-extracts-sqs
-            - name: AWS_SQS_EXPORTS_URL
+            - name: AWS_SQS_EXTRACTS_URL
               valueFrom:
                 secretKeyRef:
                   name: {{.KUBE_NAMESPACE}}-extracts-sqs
