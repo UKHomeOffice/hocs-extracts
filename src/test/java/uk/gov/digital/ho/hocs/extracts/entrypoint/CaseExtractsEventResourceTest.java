@@ -30,7 +30,6 @@ public class CaseExtractsEventResourceTest extends BaseExportResourceTest {
 
     @Autowired
     private AuditRepository auditRepository;
-    private HttpEntity<Object> authRequestEntity;
 
     @BeforeEach
     public void setup() {
@@ -38,8 +37,6 @@ public class CaseExtractsEventResourceTest extends BaseExportResourceTest {
                 "{}", LocalDateTime.now(), "TEST", "TEST");
 
         auditRepository.save(auditEvent);
-        authRequestEntity =
-                new HttpEntity<>(null, getAuthHeader("export_client", List.of("DCU_EXPORT_USER")));
     }
 
     @Test

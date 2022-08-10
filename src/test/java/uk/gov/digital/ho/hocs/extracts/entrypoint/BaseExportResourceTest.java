@@ -30,7 +30,6 @@ public abstract class BaseExportResourceTest {
     @Autowired
     protected TestRestTemplate restTemplate;
 
-
     @Autowired
     protected JwtAuthHelper jwtHelper;
 
