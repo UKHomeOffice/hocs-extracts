@@ -27,6 +27,12 @@ spring:
       hibernate:
         temp:
           use_jdbc_metadata_defaults: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${oauth.endpoint.url:http://localhost:9081/auth/realms/hocs}
+
 
 management:
   endpoints:
@@ -56,3 +62,9 @@ hocs:
   basicauth: UNSET
 
 postgresViewAllowList: dcu_aggregated_cases,dcu_business,dcu_prau_workflow
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

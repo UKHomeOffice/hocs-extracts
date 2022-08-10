@@ -12,6 +12,7 @@ import uk.gov.digital.ho.hocs.extracts.client.info.dto.SomuTypeDto;
 
 import java.io.IOException;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -21,23 +22,27 @@ import static org.springframework.http.HttpMethod.GET;
 
 public class DataExportResourceTest extends BaseExportResourceTest {
 
+    private HttpEntity<Object> authRequestEntity;
+
     @BeforeEach
     public void setup() {
         given(infoClient.getCaseTypes())
-                .willReturn(Set.of(new CaseTypeDto("Test", "a1", "TEST")));
+                .willReturn(Set.of(new CaseTypeDto("Test", "a1", "FOI")));
+        authRequestEntity =
+                new HttpEntity<>(null, getAuthHeader("export_client", List.of("FOI_EXPORT_USER")));
     }
 
     @Test
     public void exportTypeExport() throws IOException {
-        given(infoClient.getCaseExportFields("TEST")).willReturn(new LinkedHashSet<>());
+        given(infoClient.getCaseExportFields("FOI")).willReturn(new LinkedHashSet<>());
 
         ResponseEntity<String> result = restTemplate.exchange(
-                getExportUri("/export/TEST?fromDate=2020-01-01&toDate=2022-01-01&exportType=CASE_DATA"),
-                GET, HttpEntity.EMPTY, String.class);
+                getExportUri("/export/FOI?fromDate=2020-01-01&toDate=2022-01-01&exportType=CASE_DATA"),
+                GET, authRequestEntity, String.class);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(HttpStatus.OK, result.getStatusCode());
-        Assertions.assertEquals(getFileName("test", "case_data"), result.getHeaders().getContentDisposition().getFilename());
+        Assertions.assertEquals(getFileName("foi", "case_data"), result.getHeaders().getContentDisposition().getFilename());
 
         var rows = getCSVRows(result.getBody())
                 .stream()
@@ -49,8 +54,8 @@ public class DataExportResourceTest extends BaseExportResourceTest {
     @Test
     public void exportTypeReportFailsIfFromDateNotSpecified() {
         ResponseEntity<String> result = restTemplate.exchange(
-                getExportUri("/export/TEST?toDate=2022-01-01&exportType=CASE_DATA"),
-                GET, HttpEntity.EMPTY, String.class);
+                getExportUri("/export/FOI?toDate=2022-01-01&exportType=CASE_DATA"),
+                GET, authRequestEntity, String.class);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
@@ -59,8 +64,8 @@ public class DataExportResourceTest extends BaseExportResourceTest {
     @Test
     public void exportTypeReportFailsIfExportTypeNotSpecified() {
         ResponseEntity<String> result = restTemplate.exchange(
-                getExportUri("/export/TEST?fromDate=2020-01-01&toDate=2022-01-01"),
-                GET, HttpEntity.EMPTY, String.class);
+                getExportUri("/export/FOI?fromDate=2020-01-01&toDate=2022-01-01"),
+                GET, authRequestEntity, String.class);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
@@ -69,8 +74,8 @@ public class DataExportResourceTest extends BaseExportResourceTest {
     @Test
     public void exportTypeReportFailsIfExportTypeIsInvalid() {
         ResponseEntity<String> result = restTemplate.exchange(
-                getExportUri("/export/TEST?fromDate=2020-01-01&toDate=2022-01-01&exportType=TEST"),
-                GET, HttpEntity.EMPTY, String.class);
+                getExportUri("/export/FOI?fromDate=2020-01-01&toDate=2022-01-01&exportType=TEST"),
+                GET,authRequestEntity, String.class);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
@@ -78,16 +83,16 @@ public class DataExportResourceTest extends BaseExportResourceTest {
 
     @Test
     public void somuTypeExport() throws IOException {
-        given(infoClient.getSomuType("TEST", "SOMU"))
-                .willReturn(new SomuTypeDto(UUID.randomUUID(), "TEST", "SOMU", "{}", true));
+        given(infoClient.getSomuType("FOI", "SOMU"))
+                .willReturn(new SomuTypeDto(UUID.randomUUID(), "FOI", "SOMU", "{}", true));
 
         ResponseEntity<String> result = restTemplate.exchange(
-                getExportUri("/export/somu/TEST?fromDate=2020-01-01&toDate=2022-01-01&somuType=SOMU"),
-                GET, HttpEntity.EMPTY, String.class);
+                getExportUri("/export/somu/FOI?fromDate=2020-01-01&toDate=2022-01-01&somuType=SOMU"),
+                GET, authRequestEntity, String.class);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(HttpStatus.OK, result.getStatusCode());
-        Assertions.assertEquals(getFileName("test", "SOMU"), result.getHeaders().getContentDisposition().getFilename());
+        Assertions.assertEquals(getFileName("foi", "SOMU"), result.getHeaders().getContentDisposition().getFilename());
 
         var rows = getCSVRows(result.getBody())
                 .stream()
@@ -99,8 +104,8 @@ public class DataExportResourceTest extends BaseExportResourceTest {
     @Test
     public void somuTypeReportFailsIfFromDateNotSpecified() {
         ResponseEntity<String> result = restTemplate.exchange(
-                getExportUri("/export/somu/TEST?toDate=2022-01-01&somuType=SOMU"),
-                GET, HttpEntity.EMPTY, String.class);
+                getExportUri("/export/somu/FOI?toDate=2022-01-01&somuType=SOMU"),
+                GET, authRequestEntity, String.class);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
@@ -109,8 +114,8 @@ public class DataExportResourceTest extends BaseExportResourceTest {
     @Test
     public void somuTypeReportFailsIfSomuTypeNotSpecified() {
         ResponseEntity<String> result = restTemplate.exchange(
-                getExportUri("/export/somu/TEST?fromDate=2020-01-01&toDate=2022-01-01"),
-                GET, HttpEntity.EMPTY, String.class);
+                getExportUri("/export/somu/FOI?fromDate=2020-01-01&toDate=2022-01-01"),
+                GET, authRequestEntity, String.class);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());

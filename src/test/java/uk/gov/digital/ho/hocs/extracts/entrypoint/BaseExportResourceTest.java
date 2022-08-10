@@ -1,6 +1,5 @@
 package uk.gov.digital.ho.hocs.extracts.entrypoint;
 
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -9,8 +8,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import uk.gov.digital.ho.hocs.extracts.client.info.InfoClient;
+import uk.gov.digital.ho.hocs.extracts.core.utils.JwtAuthHelper;
+
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -20,11 +24,15 @@ import java.util.Arrays;
 import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("local")
+@ActiveProfiles({"local", "test"})
 public abstract class BaseExportResourceTest {
 
     @Autowired
     protected TestRestTemplate restTemplate;
+
+
+    @Autowired
+    protected JwtAuthHelper jwtHelper;
 
     @LocalServerPort
     private int port;
@@ -53,6 +61,10 @@ public abstract class BaseExportResourceTest {
         return csvParser.getRecords();
     }
 
-
+    protected HttpHeaders getAuthHeader(String subject, List<String> roles) {
+        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+        headers.set(HttpHeaders.AUTHORIZATION,  String.format("%s %s", "Bearer", jwtHelper.createJwt(subject, roles)));
+        return new HttpHeaders(headers);
+    }
 
 }

@@ -16,6 +16,7 @@ import uk.gov.digital.ho.hocs.extracts.repository.AuditRepository;
 import uk.gov.digital.ho.hocs.extracts.repository.entity.AuditEvent;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.http.HttpMethod.POST;
@@ -29,6 +30,7 @@ public class CaseExtractsEventResourceTest extends BaseExportResourceTest {
 
     @Autowired
     private AuditRepository auditRepository;
+    private HttpEntity<Object> authRequestEntity;
 
     @BeforeEach
     public void setup() {
@@ -36,6 +38,8 @@ public class CaseExtractsEventResourceTest extends BaseExportResourceTest {
                 "{}", LocalDateTime.now(), "TEST", "TEST");
 
         auditRepository.save(auditEvent);
+        authRequestEntity =
+                new HttpEntity<>(null, getAuthHeader("export_client", List.of("DCU_EXPORT_USER")));
     }
 
     @Test
@@ -43,7 +47,8 @@ public class CaseExtractsEventResourceTest extends BaseExportResourceTest {
         DeleteCaseExtractsDto deleteCaseExtractsDto = new DeleteCaseExtractsDto("1", true);
         HttpEntity<DeleteCaseExtractsDto> httpEntity = new HttpEntity<>(deleteCaseExtractsDto, null);
 
-        ResponseEntity<DeleteCaseAuditResponse> result = restTemplate.exchange(getExportUri("/extracts/case/%s/delete", auditEvent.getCaseUUID()),
+        ResponseEntity<DeleteCaseAuditResponse> result = restTemplate
+                .exchange(getExportUri("/extracts/case/%s/delete", auditEvent.getCaseUUID()),
                 POST, httpEntity, DeleteCaseAuditResponse.class);
 
         Assertions.assertNotNull(result);

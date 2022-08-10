@@ -1,6 +1,13 @@
 localstack:
   host: localhost
 
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${oauth.endpoint.url:http://localhost:9081/auth/realms/hocs}
+
 aws:
   sqs:
     config:
