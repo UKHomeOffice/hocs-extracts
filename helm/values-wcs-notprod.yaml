@@ -1,0 +1,6 @@
+---
+hocs-generic-service:
+
+  keycloak:
+    realm: https://sso-dev.notprod.homeoffice.gov.uk/auth/realms/hocs-notprod
+    domain: wcs-notprod.homeoffice.gov.uk
